@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/battiloid/robotic-crustation
+          skipSslValidation: true
+          timeout: 4
+
+
+server:
+  port: 8888
+
+#tpd:
+#  peer1Port: 8761
+#  peer2Port: 8762
+#  peer3Port: 8763
+#
+#eureka:
+#  client:
+#    region: default
+#    registryFetchIntervalSeconds: 5
+#    serviceUrl:
+#      defaultZone: http://eureka-peer1:${tpd.peer1Port}/eureka,http://eureka-peer2:${tpd.peer2Port}/eureka,http://eureka-peer3:${tpd.peer3Port}/eureka
+
