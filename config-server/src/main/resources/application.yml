@@ -5,11 +5,9 @@ spring:
     config:
       server:
         git:
-          uri: file:///C:\Users\ajohnson\local-configs\robotic-crustacean\application-config
-#          uri: https://github.com/battiloid/robotic-crustation
-#          skipSslValidation: true
-#          timeout: 4
-
+          uri: https://github.com/battiloid/robotic-crustation-config
+          skipSslValidation: true
+          timeout: 4
 
 server:
   port: 8888
