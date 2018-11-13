@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: book-service
+  cloud:
+    config:
+      name: book-service
+      discovery:
+        enabled: true
+        service-id: config-server
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-peer1:8761/eureka
+

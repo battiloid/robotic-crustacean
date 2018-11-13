@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: rating-service
+  cloud:
+    config:
+      name: rating-service
+      discovery:
+        enabled: true
+        service-id: config-server
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-peer1:8761/eureka
