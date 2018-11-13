@@ -1,4 +1,4 @@
-package com.lbp.prototypes.microservices.multitenantconfigserver;
+package com.lbp.prototypes.microservices.configserver;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
