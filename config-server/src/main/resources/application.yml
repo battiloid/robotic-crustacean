@@ -5,22 +5,22 @@ spring:
     config:
       server:
         git:
+#          uri: file:///C:\dev\code\IntelliJ\robotic-crustacean-config
           uri: https://github.com/battiloid/robotic-crustacean-config
           skipSslValidation: true
           timeout: 4
+  security:
+    user:
+      name: configuser
+      password: configPassword
+      role: SYSTEM
 
 server:
   port: 8888
 
-#tpd:
-#  peer1Port: 8761
-#  peer2Port: 8762
-#  peer3Port: 8763
-#
 eureka:
   client:
     region: default
     registryFetchIntervalSeconds: 5
     serviceUrl:
-      defaultZone: http://eureka-peer1:8761/eureka
-
+      defaultZone: http://discuser:discPassword@eureka-peer1:8761/eureka

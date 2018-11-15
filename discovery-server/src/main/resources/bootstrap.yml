@@ -3,5 +3,7 @@ spring:
     name: discovery
   cloud:
     config:
+      username: configuser
+      password: configPassword
       name: discovery
       uri: http://config-server:8888
