@@ -17,16 +17,16 @@ repositories {
 }
 
 ext {
-    name = 'Spring Boot Zuul Gateway Server'
-    description = 'An Instance of a distributed Spring Boot Zuul Gateway Server'
+    name = 'Spring Boot Example Service for hosting beers'
+    description = 'An Instance of a distributed Spring Boot Example Service for hosting beers'
     springCloudVersion = 'Greenwich.M1'
 }
 
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-actuator')
-    implementation('org.springframework.cloud:spring-cloud-config-client')
+    implementation('org.springframework.boot:spring-boot-starter-web')
     implementation('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client')
-    implementation('org.springframework.cloud:spring-cloud-starter-netflix-zuul')
+    implementation('org.springframework.cloud:spring-cloud-config-client')
 
     implementation('org.springframework.boot:spring-boot-starter-security')
     implementation('org.springframework.session:spring-session-data-redis:2.1.0.RELEASE')
@@ -44,4 +44,4 @@ dependencyManagement {
     }
 }
 
-jib.to.image = 'gateway-server'
+jib.to.image = 'beer-service'

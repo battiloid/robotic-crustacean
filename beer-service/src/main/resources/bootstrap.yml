@@ -1,11 +1,11 @@
 spring:
   application:
-    name: gateway
+    name: beer-service
   profiles:
     active: native
   cloud:
     config:
-      name: gateway
+      name: beer-service
       username: configUser
       password: configPassword
       failFast: true
