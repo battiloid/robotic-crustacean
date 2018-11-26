@@ -9,12 +9,12 @@ Set the Credentials Store configuration if it isn't already setup
 
 ```json
 {
-...
+
   "credsStore": "wincred",
   "auths": {
     "https://index.docker.io/v1/": {}
   },
-...
+
 }
 ```
 
