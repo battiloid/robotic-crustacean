@@ -49,3 +49,14 @@ hs_err_pid*
 /dist/
 /nbdist/
 /.nb-gradle/
+
+#  Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# .tfvars files
+*.tfvars
+
