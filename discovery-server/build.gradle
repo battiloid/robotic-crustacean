@@ -4,18 +4,17 @@ plugins {
     id 'idea'
     id 'org.springframework.boot' version '2.1.0.RELEASE'
     id 'io.spring.dependency-management' version "1.0.6.RELEASE"
-    id 'com.google.cloud.tools.jib' version '0.9.6'
+    id 'com.google.cloud.tools.jib' version '0.10.0'
 }
 
 group = 'com.lbp.prototypes.microservices'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
     maven { url "https://repo.spring.io/milestone" }
 }
-
 
 ext {
     name = 'Eureka Naming Server'
@@ -43,4 +42,5 @@ dependencyManagement {
     }
 }
 
-jib.to.image = 'discovery-server'
+jib.to.image = 'battiloid/discovery-server'
+jib.to.credHelper = 'wincred'

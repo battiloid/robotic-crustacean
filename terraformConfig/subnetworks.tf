@@ -1,73 +1,97 @@
-resource "aws_subnet" "subnetP1" {
-  cidr_block        = "${cidrsubnet(aws_vpc.main-vpc.cidr_block, 8, 1)}"
-  vpc_id            = "${aws_vpc.main-vpc.id}"
-  availability_zone = "${var.aws_azs["zone1"]}"
+data "aws_availability_zones" "main" {}
 
-  tags {
-    Name = "${var.subnet_names["subnetP1"]}"
-  }
+##
+## Private Subnet
+##
+
+resource "aws_subnet" "private" {
+  count = "${var.create ? length(var.private_sub_cidr) : 0}"
+
+  vpc_id                  = "${var.create_vpc ? element(concat(aws_vpc.main.*.id, list("")), 0) : var.vpc_id}"
+  availability_zone       = "${element(data.aws_availability_zones.main.names, count.index)}"
+  cidr_block              = "${element(var.private_sub_cidr, count.index)}"
+  map_public_ip_on_launch = true
+
+  tags = "${merge(var.tags, map("Name", format("%s-private-%d", var.name, count.index + 1)))}"
 }
 
-resource "aws_subnet" "subnetX1" {
-  cidr_block        = "${cidrsubnet(aws_vpc.main-vpc.cidr_block, 8, 11)}"
-  vpc_id            = "${aws_vpc.main-vpc.id}"
-  availability_zone = "${var.aws_azs["zone1"]}"
+resource "aws_route_table" "private_subnet" {
+  count = "${var.create ? length(var.private_sub_cidr) : 0}"
 
-  tags {
-    Name = "${var.subnet_names["subnetX1"]}"
+  vpc_id = "${var.create_vpc ? element(concat(aws_vpc.main.*.id, list("")), 0) : var.vpc_id}" # TODO: Workaround for issue #11210
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = "${element(aws_nat_gateway.nat.*.id, count.index)}"
   }
+
+  tags = "${merge(var.tags, map("Name", format("%s-private-%d", var.name, count.index + 1)))}"
 }
 
-resource "aws_subnet" "subnetP2" {
-  cidr_block        = "${cidrsubnet(aws_vpc.main-vpc.cidr_block, 8, 2)}"
-  vpc_id            = "${aws_vpc.main-vpc.id}"
-  availability_zone = "${var.aws_azs["zone2"]}"
+resource "aws_route_table_association" "private" {
+  count = "${var.create ? length(var.private_sub_cidr) : 0}"
 
-  tags {
-    Name = "${var.subnet_names["subnetP2"]}"
-  }
+  subnet_id      = "${element(aws_subnet.private.*.id, count.index)}"
+  route_table_id = "${element(aws_route_table.private_subnet.*.id, count.index)}"
 }
 
-resource "aws_subnet" "subnetX2" {
-  cidr_block        = "${cidrsubnet(aws_vpc.main-vpc.cidr_block, 8, 12)}"
-  vpc_id            = "${aws_vpc.main-vpc.id}"
-  availability_zone = "${var.aws_azs["zone2"]}"
+##
+## Public Subnet
+##
 
-  tags {
-    Name = "${var.subnet_names["subnetX2"]}"
-  }
+resource "aws_subnet" "public" {
+  count = "${var.create ? length(var.public_sub_cidr) : 0}"
+
+  vpc_id                  = "${var.create_vpc ? element(concat(aws_vpc.main.*.id, list("")), 0) : var.vpc_id}"
+  availability_zone       = "${element(data.aws_availability_zones.main.names, count.index)}"
+  cidr_block              = "${element(var.public_sub_cidr, count.index)}"
+  map_public_ip_on_launch = true
+
+  tags = "${merge(var.tags, map("Name", format("%s-public-%d", var.name, count.index + 1)))}"
 }
 
-resource "aws_subnet" "subnetP3" {
-  cidr_block        = "${cidrsubnet(aws_vpc.main-vpc.cidr_block, 8, 3)}"
-  vpc_id            = "${aws_vpc.main-vpc.id}"
-  availability_zone = "${var.aws_azs["zone3"]}"
+resource "aws_internet_gateway" "main" {
+  count  = "${var.create ? 1 : 0}"
+  vpc_id = "${var.create_vpc ? element(concat(aws_vpc.main.*.id, list("")), 0) : var.vpc_id}" # TODO: Workaround for issue #11210
 
-  tags {
-    Name = "${var.subnet_names["subnetP3"]}"
-  }
+  tags = "${merge(var.tags, map("Name", format("%s", var.name)))}"
 }
 
-resource "aws_subnet" "subnetX3" {
-  cidr_block        = "${cidrsubnet(aws_vpc.main-vpc.cidr_block, 8, 13)}"
-  vpc_id            = "${aws_vpc.main-vpc.id}"
-  availability_zone = "${var.aws_azs["zone3"]}"
+resource "aws_route_table" "public" {
+  count  = "${var.create ? 1 : 0}"
+  vpc_id = "${var.create_vpc ? element(concat(aws_vpc.main.*.id, list("")), 0) : var.vpc_id}" # TODO: Workaround for issue #11210
 
-  tags {
-    Name = "${var.subnet_names["subnetX3"]}"
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = "${aws_internet_gateway.main.id}"
   }
+
+  tags = "${merge(var.tags, map("Name", format("%s-public_route", var.name)))}"
 }
 
-resource "aws_security_group" "subnetsecurity" {
-  vpc_id = "${aws_vpc.main-vpc.id}"
+resource "aws_route_table_association" "public" {
+  count = "${var.create ? length(var.public_sub_cidr) : 0}"
 
-  ingress {
-    cidr_blocks = [
-      "${aws_vpc.main-vpc.cidr_block}",
-    ]
+  subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
+  route_table_id = "${aws_route_table.public.id}"
+}
 
-    from_port = 80
-    to_port   = 80
-    protocol  = "tcp"
-  }
+##
+## Public NAT
+##
+
+resource "aws_eip" "nat_eip" {
+  count = "${var.create && var.nat_count != "-1" ? var.nat_count : var.create ? length(var.public_sub_cidr) : 0}"
+  vpc   = true
+
+  tags = "${merge(var.tags, map("Name", format("%s-nat-eip-%d", var.name, count.index + 1)))}"
+}
+
+resource "aws_nat_gateway" "nat" {
+  count = "${var.create && var.nat_count != "-1" ? var.nat_count : var.create ? length(var.public_sub_cidr) : 0}"
+
+  allocation_id = "${element(aws_eip.nat_eip.*.id, count.index)}"
+  subnet_id     = "${element(aws_subnet.public.*.id, count.index)}"
+
+  tags = "${merge(var.tags, map("Name", format("%s-%d", var.name, count.index + 1)))}"
 }

@@ -4,51 +4,74 @@ variable aws_region {
   description = "The region used to push this Terraform Configuration too"
 }
 
-variable aws_azs {
-  type = "map"
-
-  default = {
-    zone1 = "us-east-2a"
-    zone2 = "us-east-2b"
-    zone3 = "us-east-2c"
-  }
+variable vpc_name {
+  type    = "string"
+  default = "Primary VPC"
 }
 
-variable aws_vpc_name {
-  default     = "TF generated VPC"
-  type        = "string"
-  description = "The name of the top level VPC"
+variable vpc_cidr {
+  type    = "string"
+  default = "14.42.0.0/16"
 }
 
-variable aws_vpc_ip_cidr_range {
-  default     = "14.42.0.0/16"
-  type        = "string"
-  description = "IP CIDR Range for AWS VPC."
+variable public_sub_cidr {
+  description = "a list of CIDRs for external subnets the VPC"
+  type        = "list"
+  default     = ["14.42.0.0/19", "14.42.64.0/19", "14.42.128.0/19"]
 }
 
-variable subnet_names {
-  type = "map"
-
-  default = {
-    subnetP1 = "TF Test Private Subnet AZ-1"
-    subnetP2 = "TF Test Private Subnet AZ-2"
-    subnetP3 = "TF Test Private Subnet AZ-3"
-    subnetX1 = "TF Test Public Subnet AZ-1"
-    subnetX2 = "TF Test Public Subnet AZ-2"
-    subnetX3 = "TF Test Public Subnet AZ-3"
-  }
+variable private_sub_cidr {
+  description = "a list of CIDRs for internal subnets the VPC"
+  type        = "list"
+  default     = ["14.42.32.0/20", "14.42.96.0/20", "14.42.160.0/20"]
 }
 
-variable instance_names {
-  type = "map"
+variable name {
+  description = "Name for resources"
+  default     = "robotic_crustacean"
+}
 
-  default = {
-    configInstance1 = "TF Test Instance for Config Server in AZ-1"
-    configInstance2 = "TF Test Instance for Config Server in AZ-2"
-    configInstance3 = "TF Test Instance for Config Server in AZ-3"
+variable tags {
+  description = "Optional map of tags to set on resources, defaults to empty map."
+  type        = "map"
+  default     = {}
+}
 
-    discoveryInstance1 = "TF Test Instance for Discovery Server in AZ-1"
-    discoveryInstance2 = "TF Test Instance for Discovery Server in AZ-2"
-    discoveryInstance3 = "TF Test Instance for Discovery Server in AZ-3"
-  }
+variable vpc_id {
+  description = "VPC ID to override, must be entered if \"create_vpc\" is false."
+  default     = ""
+}
+
+variable create {
+  description = "Create Module, defaults to true."
+  default     = true
+}
+
+variable create_vpc {
+  description = "Determines whether a VPC should be created or if a VPC ID will be passed in."
+  default     = true
+}
+
+variable "data_instance_size" {
+  default = "t2.micro"
+}
+
+variable "nat_count" {
+  default = 1
+}
+
+##
+## Bastion Configurations
+##
+
+variable "bastion_image_id" {
+  default = ""
+}
+
+variable "bastion_servers_count" {
+  default = 1
+}
+
+variable "bastion_ssh_key_name" {
+  default = "lb-rc-key"
 }
